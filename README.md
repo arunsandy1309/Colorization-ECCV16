@@ -1,34 +1,60 @@
-# Colorization - Pytorch Implementation
+<!--<h3><b>Colorful Image Colorization</b></h3>-->
+## <b>Colorful Image Colorization</b> [[Project Page]](http://richzhang.github.io/colorization/) <br>
+[Richard Zhang](https://richzhang.github.io/), [Phillip Isola](http://web.mit.edu/phillipi/), [Alexei A. Efros](http://www.eecs.berkeley.edu/~efros/). In [ECCV, 2016](http://arxiv.org/pdf/1603.08511.pdf).
 
-| Input | Output |
-| --------------------------------- | --------------------------------- |
-| <img src="https://user-images.githubusercontent.com/50144683/231895240-c9b77b33-cf80-4613-92e1-4783862e3f5f.jpg">  | <img src="https://user-images.githubusercontent.com/50144683/231895337-5880045c-1294-402c-9868-bc5a31c895ca.png"> |
+**+ automatic colorization functionality for Real-Time User-Guided Image Colorization with Learned Deep Priors, SIGGRAPH 2017!**
 
-This repository contains the Pytorch implementation of the following paper:
->**Colorful Image Colorization**</br>
->Richard Zhang, Phillip Isola, Alexei A. Efros</br>
->https://arxiv.org/abs/1603.08511
->
->**Abstract:** _Given a grayscale photograph as input, this paper attacks the problem of hallucinating a plausible color version of the photograph. This problem is clearly underconstrained, so previous approaches have either relied on significant user interaction or resulted in desaturated colorizations. We propose a fully automatic approach that produces vibrant and realistic colorizations. We embrace the underlying uncertainty of the problem by posing it as a classification task and use class-rebalancing at training time to increase the diversity of colors in the result. The system is implemented as a feed-forward pass in a CNN at test time and is
-trained on over a million color images. We evaluate our algorithm using a “colorization Turing test,” asking human participants to choose between a generated and ground truth color image. Our method successfully fools humans on 32% of the trials, significantly higher than previous methods. Moreover, we show that colorization can be a powerful pretext task for self-supervised feature learning, acting as a cross-channel encoder. This approach results in state-of-the-art performance on several feature learning benchmarks._
+**[Sept20 Update]** Since it has been 3-4 years, I converted this repo to support minimal test-time usage in PyTorch. I also added our SIGGRAPH 2017 (it's an interactive method but can also do automatic). See the [Caffe branch](https://github.com/richzhang/colorization/tree/caffe) for the original release.
 
-## Architecture
-<img src="https://user-images.githubusercontent.com/50144683/231896233-14092341-337a-4bda-bf7b-f7c346d55f17.png"> </br>
-Each conv layer refers to a block of 2 or 3 repeated conv and ReLU layers, followed by a BatchNorm layer. The net has no pool layers. All changes in resolution are achieved through spatial downsampling or upsampling between conv blocks. We train our Deep Neural Network on the 1.3M images from the ImageNet training set, validate on the first 10k images in the ImageNet validation set, and test on a separate 10k images in the validation set. To implement this, we are using a network that has been trained on **ImageNet classification** and weights of this network can downloaded from [here](https://colorizers.s3.us-east-2.amazonaws.com/colorization_release_v2-9b330a0b.pth)
+![Teaser Image](http://richzhang.github.io/colorization/resources/images/teaser4.jpg)
 
-## Usage
-I have gathered few images in grayscaleand placed them in 'imgs' folder. The below script will colorize an image. 
+**Clone the repository; install dependencies**
+
 ```
-python colorization.py -i imgs/wild.jpg
+git clone https://github.com/richzhang/colorization.git
+pip install requirements.txt
 ```
-The above script uses the CPU computational power to colorize the image. If you have a Nvidia GPU, append ```--use_gpu``` to the above command
-```
-python colorization.py -i imgs/wild.jpg --use_gpu
-```
-If you directly execute ```colorization.py``` file, the ```imgs/wild.jpg``` will be colorized by default.
 
-## Results
-| Input | Output |
-| --------------------------------- | --------------------------------- |
-| <img src="https://user-images.githubusercontent.com/50144683/231901237-c9f32ffb-ed7a-461d-97b5-7eb198533a75.jpg" width="1080"> | <img src="https://user-images.githubusercontent.com/50144683/231901317-a9554465-3b8e-47e4-91a5-a77a88eddcac.png" width="1080"> |
-| <img src="https://user-images.githubusercontent.com/50144683/231901492-b491fdef-edc1-4376-b234-49fa7b6a1bdf.jpg"> | <img src="https://user-images.githubusercontent.com/50144683/231901421-122ad7b6-c0b3-41f7-a269-98306495b325.png"> |
+**Colorize!** This script will colorize an image. The results should match the images in the `imgs_out` folder.
+
+```
+python demo_release.py -i imgs/ansel_adams3.jpg
+```
+
+**Model loading in Python** The following loads pretrained colorizers. See [demo_release.py](demo_release.py) for some details on how to run the model. There are some pre and post-processing steps: convert to Lab space, resize to 256x256, colorize, and concatenate to the original full resolution, and convert to RGB.
+
+```python
+import colorizers
+colorizer_eccv16 = colorizers.eccv16().eval()
+colorizer_siggraph17 = colorizers.siggraph17().eval()
+```
+
+### Original implementation (Caffe branch)
+
+The original implementation contained train and testing, our network and AlexNet (for representation learning tests), as well as representation learning tests. It is in Caffe and is no longer supported. Please see the [caffe](https://github.com/richzhang/colorization/tree/caffe) branch for it.
+
+### Citation ###
+
+If you find these models useful for your resesarch, please cite with these bibtexs.
+
+```
+@inproceedings{zhang2016colorful,
+  title={Colorful Image Colorization},
+  author={Zhang, Richard and Isola, Phillip and Efros, Alexei A},
+  booktitle={ECCV},
+  year={2016}
+}
+
+@article{zhang2017real,
+  title={Real-Time User-Guided Image Colorization with Learned Deep Priors},
+  author={Zhang, Richard and Zhu, Jun-Yan and Isola, Phillip and Geng, Xinyang and Lin, Angela S and Yu, Tianhe and Efros, Alexei A},
+  journal={ACM Transactions on Graphics (TOG)},
+  volume={9},
+  number={4},
+  year={2017},
+  publisher={ACM}
+}
+```
+
+### Misc ###
+Contact Richard Zhang at rich.zhang at eecs.berkeley.edu for any questions or comments.
